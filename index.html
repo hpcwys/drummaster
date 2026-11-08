@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DRUM MASTER</title>
+<style>
+:root{--bg:#0a0a1c;--glow:#1d1650;--card:#16163a;--fg:#ecebff;--dim:#8a89b8;--k:#ff3d81;--s:#3df0ff;--h:#ffe83d;--c:#b06cff;--t:#ffad42;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;min-height:100%;background:radial-gradient(circle at 50% 0,var(--glow),var(--bg) 60%);color:var(--fg);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;user-select:none;-webkit-user-select:none}
+#app{max-width:720px;margin:auto;padding:14px}
+.scr{display:none}.scr.on{display:block}
+h1{font-size:44px;margin:24px 0 4px;text-align:center;letter-spacing:2px}h1 b{color:var(--s);text-shadow:0 0 16px var(--s)}
+h2{margin:8px 0}h3{margin:16px 0 4px}
+body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none}
+html[data-th=aurora]{--card:#0f1c30d0}
+html[data-th=aurora] body{background:#050b18}
+html[data-th=aurora] body::before{background:radial-gradient(60% 50% at 20% 20%,#19e6b066,transparent 70%),radial-gradient(55% 45% at 80% 30%,#8a5cff66,transparent 70%),radial-gradient(50% 40% at 50% 95%,#3df0ff44,transparent 70%);animation:drift 16s ease-in-out infinite alternate}
+@keyframes drift{from{transform:translate(-4%,-3%) scale(1.1)}to{transform:translate(4%,3%) scale(1.2)}}
+html[data-th=synth]{--card:#2a1048d0}
+html[data-th=synth] body{background:linear-gradient(#12062b 0%,#3a0f5c 42%,#c2307a 70%,#ff8a3d 100%)}
+html[data-th=synth] body::before{background:radial-gradient(circle at 50% 60%,#ffe45e 0 54px,transparent 56px),repeating-linear-gradient(90deg,#ff5fd255 0 1px,transparent 1px 44px),repeating-linear-gradient(0deg,#ff5fd255 0 1px,transparent 1px 30px);background-size:auto,100% 34%,100% 34%;background-position:center,bottom,bottom;background-repeat:no-repeat}
+html[data-th=galaxy]{--card:#14123acc}
+html[data-th=galaxy] body{background:radial-gradient(ellipse at 30% 0,#2a1a66,#0a0a2a 55%,#03030f)}
+html[data-th=galaxy] body::before{background-image:radial-gradient(1.5px 1.5px at 10% 20%,#fff,transparent),radial-gradient(1px 1px at 30% 70%,#fff,transparent),radial-gradient(2px 2px at 55% 35%,#cfe,transparent),radial-gradient(1px 1px at 75% 80%,#fff,transparent),radial-gradient(1.5px 1.5px at 90% 15%,#fff,transparent),radial-gradient(1px 1px at 45% 90%,#fff,transparent),radial-gradient(1px 1px at 65% 10%,#fff,transparent),radial-gradient(1.5px 1.5px at 20% 50%,#fff,transparent),radial-gradient(1px 1px at 85% 55%,#fff,transparent);animation:tw 4s ease-in-out infinite alternate}
+@keyframes tw{from{opacity:.4}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){body::before{animation:none!important}}.sub{text-align:center;color:var(--dim);margin:0 0 18px}.dim{color:var(--dim);font-size:13px;margin:4px 0}
+.btn{display:block;width:100%;padding:16px;margin:10px 0;border:1px solid var(--s);border-radius:14px;background:#0003;color:var(--fg);font-size:18px;font-weight:700;box-shadow:0 0 12px #3df0ff44}
+.btn:active{background:#3df0ff33}
+.sm{padding:8px 14px;margin:6px 8px 0 0;border:1px solid var(--dim);border-radius:10px;background:none;color:var(--fg);font-size:14px}
+.card{background:var(--card);border-radius:14px;padding:12px 14px;margin:10px 0;line-height:1.6}
+pre{margin:6px 0;font-size:12px;line-height:1.4;color:var(--dim);overflow-x:auto}
+#hud{display:flex;gap:6px;text-align:center}#hud div{flex:1;background:var(--card);border-radius:10px;padding:6px 2px;font-size:11px;color:var(--dim)}#hud b{display:block;font-size:19px;color:var(--fg)}
+#top{display:flex;justify-content:space-between;align-items:center;margin:8px 0}
+#goal{color:var(--s);font-size:14px}
+#cv{width:100%;height:230px;display:block;background:#0006;border-radius:14px;margin:6px 0}
+#judge{height:36px;text-align:center;font-size:24px;font-weight:900}
+#pads{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.pad{height:120px;border-radius:16px;border:2px solid var(--p);color:var(--p);background:#0004;font-size:16px;font-weight:800;touch-action:none}
+.pad small{display:block;opacity:.7;margin-top:4px}
+.pad.on{background:var(--p);color:#000;box-shadow:0 0 26px var(--p)}
+#pause{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;flex-direction:column;gap:8px;padding:30px;z-index:5}#pause.on{display:flex}#pause .btn{max-width:280px}
+input[type=range]{width:60%;vertical-align:middle}.row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}.row .nm{flex:1;min-width:90px}input[type=number]{width:84px;padding:6px;border-radius:8px;border:1px solid var(--dim);background:#0004;color:var(--fg)}input{-webkit-user-select:text;user-select:text}.in{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:1px solid var(--dim);background:#0004;color:var(--fg);font-size:16px}
+@media (max-height:620px){#cv{height:170px}.pad{height:90px}}
+</style></head><body>
+<main id="app">
+<section id="menu" class="scr on">
+<h1>DRUM <b>MASTER</b></h1><p class="sub">리듬 게임으로 배우는 드럼 악보</p>
+<button class="btn" onclick="lessons()">레슨 모드</button>
+<button class="btn" onclick="run('I')">무한 연주 모드</button><button class="btn" onclick="show('board')">리더보드</button><button class="btn" onclick="show('shop')">상점 🪙</button><div class="card" id="acct"></div>
+<div class="card">🪙 코인 <b id="coin"></b><br>최고 점수 <b id="best"></b> · 최고 콤보 <b id="bc"></b></div>
+<div class="card">음량 <input type="range" id="vol" min="0" max="1" step=".05"><br><span class="dim">키보드·전자드럼: W 킥 · A 하이햇 · S 스네어 · D 탐 · F 심벌 / 모바일은 버튼을 터치하세요.</span></div>
+</section>
+<section id="lessons" class="scr"><h2>레슨 모드</h2><div id="llist"></div><button class="btn" onclick="show('menu')">메뉴로</button></section>
+<section id="auth" class="scr"><h2>계정</h2><div class="card"><input id="an" class="in" type="text" placeholder="닉네임 (2~12자)" maxlength="12" autocomplete="off"><input id="ap" class="in" type="password" placeholder="비밀번호 (4자 이상)" autocomplete="off"><input id="ae" class="in" type="email" placeholder="관리자 이메일" autocomplete="email" style="display:none"><div id="am" class="dim"></div><button class="btn" onclick="auth(0)">로그인</button><button class="btn" onclick="auth(1)">계정 만들기</button></div><button class="btn" onclick="show('menu')">메뉴로</button></section>
+<section id="shop" class="scr"><h2>상점</h2><div class="card">🪙 보유 코인 <b id="sc2"></b><br><span class="dim">코인은 겉모습과 칭호만 바꿔요. 판정에는 영향이 없어요.</span><div id="shm" class="dim"></div></div><div id="sl"></div><button class="btn" onclick="show('menu')">메뉴로</button></section>
+<section id="board" class="scr"><h2>무한 연주 리더보드</h2><div id="bmsg" class="dim"></div><div id="bl"></div><button class="btn" onclick="show('menu')">메뉴로</button></section>
+<section id="game" class="scr">
+<div id="hud"><div>점수<b id="sc">0</b></div><div>콤보<b id="cb">0</b></div><div>스테이지<b id="st">1</b></div><div>정확도<b id="ac">100%</b></div><div>실수<b id="ms">-</b></div></div>
+<div id="top"><span id="goal"></span><button class="sm" onclick="pz(1)">일시정지</button></div>
+<canvas id="cv"></canvas><div id="judge"></div>
+<div id="pads">
+<button class="pad" data-i="K" style="--p:#ff3d81">킥<small>W</small></button>
+<button class="pad" data-i="H" style="--p:#ffe83d">하이햇<small>A</small></button>
+<button class="pad" data-i="S" style="--p:#3df0ff">스네어<small>S</small></button>
+<button class="pad" data-i="T" style="--p:#ffad42">탐<small>D</small></button>
+<button class="pad" data-i="C" style="--p:#b06cff">심벌<small>F</small></button>
+</div></section>
+<section id="result" class="scr"><h1 id="rt" style="font-size:30px"></h1><div id="rb"></div><div id="rbtn"></div></section>
+</main>
+<div id="pause"><h2>일시정지</h2><button class="btn" onclick="pz(0)">계속하기</button><button class="btn" onclick="restart()">처음부터 다시 시작</button><button class="btn" onclick="quit()">메뉴로 나가기</button></div>
+<script>
+const $=i=>document.getElementById(i),INST=['C','H','S','T','K'],COL={K:'#ff3d81',S:'#3df0ff',H:'#ffe83d',C:'#b06cff',T:'#ffad42'},KEY={a:'K',s:'H',d:'S',f:'T',g:'C'};
+let D={best:0,bc:0,coins:0,acc:{},vol:.8,own:{},eq:{pbg:'none',theme:'neon',fx:'flash',ttl:''}},G=null,ac,master,noise,cb;
+try{Object.assign(D,JSON.parse(localStorage.getItem('drum-master')||'{}'))}catch(e){}
+const lsave=()=>{try{localStorage.setItem('drum-master',JSON.stringify(D))}catch(e){}},save=()=>{lsave();pushProf()};
+if(!D.v){const o=D.acc,m=[0,1,2,4,5,6,7,3,8,9];D.acc={};for(const k in o)D.acc[m[k]]=o[k];D.v=1;save()}
+if(D.v<2){if(D.acc[9]!=null){D.acc[12]=D.acc[9];delete D.acc[9]}D.v=2;save()}
+function fixProg(){const R={'set:electro':300,'set:deep':500,'theme:sunset':200,'theme:forest':200};let ch=0;D.own=D.own||{};D.eq=D.eq||{};
+for(const k in R)if(D.own[k]){D.coins=(D.coins||0)+R[k];delete D.own[k];ch=1}
+if(D.eq.set!==undefined){delete D.eq.set;ch=1}if(!D.eq.pbg){D.eq.pbg='none';ch=1}
+if(D.eq.theme==='sunset'||D.eq.theme==='forest'){D.eq.theme='neon';ch=1}return ch}
+if(fixProg())lsave();
+const P=(c,h,s,k,t)=>[c,h,s,t,k].map(x=>x||'.'.repeat(16));
+const L=[
+{n:'4분음표',g:'킥을 1·2·3·4박에 정확히 치기',bpm:70,ps:80,p:P('','','','x...x...x...x...')},
+{n:'기본 드럼 비트',g:'킥은 1·3박, 스네어는 2·4박',bpm:70,ps:80,p:P('','','....x.......x...','x.......x.......')},
+{n:'8분음표 하이햇',g:'한 박을 두 부분으로 나눠 치기',bpm:70,ps:80,p:P('','x.x.x.x.x.x.x.x.')},
+{n:'동시 연주',g:'두 악기를 동시에 누르기',bpm:70,ps:80,p:P('','x...x...x...x...','....x.......x...','x.......x.......')},
+{n:'기본 8비트',g:'하이햇 + 킥 + 스네어 조합',bpm:75,ps:80,p:P('','x.x.x.x.x.x.x.x.','....x.......x...','x.......x.......')},
+{n:'쉼표',g:'연주하는 위치와 쉬는 위치 구분',bpm:75,ps:85,p:P('','x...x.x.x...x.x.','....x.......x...','x.......x.......')},
+{n:'16분음표 하이햇',g:'한 박을 네 부분으로 나눠 치기',bpm:70,ps:85,p:P('','xxxxxxxxxxxxxxxx','....x.......x...','x.......x.......')},
+{n:'싱코페이션',g:'박자 사이(엇박)의 킥 강조',bpm:75,ps:85,p:P('','x.x.x.x.x.x.x.x.','....x.......x...','x.....x...x.....')},
+{n:'크래시 악센트',g:'1박에 킥 + 크래시 동시 연주',bpm:75,ps:85,p:P('x...............','..x.x.x.x.x.x.x.','....x.......x...','x.......x.......')},
+{n:'스네어 엇박',g:'2·4박 스네어에 박자 사이 한 번 더하기',bpm:70,ps:80,p:P('','x.x.x.x.x.x.x.x.','....x.......x.x.','x.......x.......')},
+{n:'하이햇 섞어 치기',g:'8분음표와 16분음표를 섞어 치기',bpm:70,ps:80,p:P('','x.x.xxx.x.x.xxx.','....x.......x...','x.......x.......')},
+{n:'엇박 킥 + 크래시',g:'크래시 악센트에 엇박 킥 더하기',bpm:75,ps:80,p:P('x...............','..x.x.x.x.x.x.x.','....x.......x...','x.....x.x.......')},
+{n:'종합 연주',g:'지금까지 배운 리듬을 하나로 결합',bpm:75,ps:80,p:P('x...............','x.x.xxx.x.x.xxx.','....x.......x.x.','x.....x.x.......')}];
+const PO=[[0,1],[2,4],[5,8],[6],[7],[3,11,12]],ZN=['기본 박자','8분음표','쉼표와 악센트','16분음표','싱코페이션','복합 리듬'];
+const J={P:['PERFECT','#ffe83d',1],G:['GREAT','#3df0ff',.9],O:['GOOD','#7dff7d',.7]};
+
+/* 사운드 (Web Audio 합성) */
+function audio(){if(!ac){ac=new(window.AudioContext||window.webkitAudioContext)();master=ac.createGain();master.connect(ac.destination);const b=ac.createBuffer(1,ac.sampleRate,ac.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;noise=b}master.gain.value=D.vol;if(ac.state!=='running')ac.resume()}
+function snd(i,t=ac.currentTime){const g=ac.createGain(),Z=SETS[D.eq.set]||SETS.base;g.connect(master);
+if(i==='K'){const o=ac.createOscillator();o.frequency.setValueAtTime(Z.kf,t);o.frequency.exponentialRampToValueAtTime(40,t+.12);g.gain.setValueAtTime(1,t);g.gain.exponentialRampToValueAtTime(.001,t+Z.kd);o.connect(g);o.start(t);o.stop(t+Z.kd+.01);return}
+const [fr,d]={S:[Z.sf,.18],H:[Z.hf,.05],C:[4000,Z.cd],T:[1800,.12]}[i],n=ac.createBufferSource(),f=ac.createBiquadFilter();f.type='highpass';f.frequency.value=fr;n.buffer=noise;g.gain.setValueAtTime(i==='C'?.5:.7,t);g.gain.exponentialRampToValueAtTime(.001,t+d);n.connect(f);f.connect(g);n.start(t);n.stop(t+d+.05);
+if(i==='S'||i==='T'){const o=ac.createOscillator(),og=ac.createGain();o.type='triangle';o.frequency.value=i==='S'?Z.st:240;og.gain.setValueAtTime(i==='S'?.5:.25,t);og.gain.exponentialRampToValueAtTime(.001,t+(i==='S'?.1:.07));o.connect(og);og.connect(master);o.start(t);o.stop(t+.11)}}
+function click(t,a){const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=a?1800:1200;g.gain.setValueAtTime(.1,t);g.gain.exponentialRampToValueAtTime(.001,t+.04);o.connect(g);g.connect(cb||master);o.start(t);o.stop(t+.05)}
+function demo(i){audio();const t=ac.currentTime+.1,sp=60/L[i].bpm/4;for(let b=0;b<2;b++)INST.forEach((s,k)=>{for(let j=0;j<16;j++)if(L[i].p[k][j]==='x')snd(s,t+(b*16+j)*sp)})}
+
+/* 화면 */
+function show(id){document.querySelectorAll('.scr').forEach(e=>e.classList.toggle('on',e.id===id));if(id==='board')drawBoard();if(id==='shop')drawShop();if(id==='menu'){acct();$('coin').textContent=D.coins;$('best').textContent=D.best;$('bc').textContent=D.bc}}
+function lessons(){show('lessons');$('llist').innerHTML=L.map((l,i)=>{const ok=i==0||D.acc[i-1]>=L[i-1].ps,a=D.acc[i],g=l.p.map((r,k)=>'CHTSK'[k]+' '+r.replace(/x/g,'●').replace(/\./g,'·').replace(/(.{4})/g,'$1 ')).join('\n');
+return `<div class="card"><b>${i+1}. ${l.n}</b> ${a>=l.ps?'✅':''}<div class="dim">${l.g} · ${l.bpm}BPM · 통과 ${l.ps}%${a?' · 최고 '+a+'%':''}</div><pre>  1    2    3    4\n${g}</pre>${ok?`<button class="sm" onclick="demo(${i})">예시 듣기</button><button class="sm" onclick="run('L',${i})">연주 시작</button>`:'<span class="dim">이전 스테이지를 통과하면 열립니다.</span>'}</div>`}).join('')}
+
+/* 게임 */
+function run(mode,li){audio();if(cb)cb.disconnect();cb=ac.createGain();cb.connect(master);show('game');sz();$('pause').classList.remove('on');
+G={mode,li,notes:[],grid:[],chunks:[],ce:0,mp:0,score:0,combo:0,maxc:0,mist:0,cnt:{P:0,G:0,O:0,M:0},wrong:0,stage:0,accs:[],bpm:mode==='L'?L[li].bpm:70,over:0,paused:0,flash:{},fx:[],coins:0,t:0};
+const be=60/G.bpm,t0=ac.currentTime+.4;for(let i=0;i<4;i++){click(t0+i*be,!i);G.grid.push({t:t0+i*be,l:i+1,d:1})}
+G.t=t0+4*be;addChunk();upd();const id=++LID;requestAnimationFrame(()=>loop(id))}
+function addChunk(){const s=G.stage++;let li,bars=2;
+if(G.mode==='L'){li=G.li;bars=4}else{const a=G.accs.slice(-5),av=a.length?a.reduce((x,y)=>x+y)/a.length:.9;
+if(a.length)G.bpm=Math.max(60,Math.min(130,G.bpm+(av>=.95?4:av<.7?-4:0)));
+const pl=PO[Math.min(5,s/5|0)];li=av<.7&&G.last!=null?G.last:pl[Math.random()*pl.length|0];G.last=li;
+$('goal').textContent=`구간 ${Math.min(5,s/5|0)+1}: ${ZN[Math.min(5,s/5|0)]} · ${G.bpm}BPM`}
+if(G.mode==='L')$('goal').textContent=L[li].g;
+const sp=60/G.bpm/4,c={a:G.notes.length,end:G.t+bars*16*sp};G.chunks.push(c);
+for(let b=0;b<bars;b++)for(let j=0;j<16;j++){const t=G.t+(b*16+j)*sp;if(j%4==0)G.grid.push({t,l:String(j/4+1)});else if(j%4==2)G.grid.push({t,l:'&'});
+INST.forEach((s2,k)=>{if(L[li].p[k][j]==='x')G.notes.push({t,i:s2,h:0})})}
+for(let b=0;b<bars*4;b++)click(G.t+b*sp*4,b%4==0);c.e=G.notes.length;G.t=c.end}
+function ev(c){let w=0,n=c.e-c.a;for(let k=c.a;k<c.e;k++)if(G.notes[k].h>0)w+=G.notes[k].w;const a=n?w/n:1;G.accs.push(a);if(G.mode==='I'&&a>=.7)G.coins+=10;upd();lbPut()}
+const acc=()=>{const c=G.cnt,d=c.P+c.G+c.O+c.M+G.wrong;return d?(c.P+c.G*.9+c.O*.7)/d:1};
+function upd(){$('sc').textContent=G.score;$('cb').textContent=G.combo;$('st').textContent=G.mode==='L'?G.li+1+'/'+L.length:G.accs.length+1;$('ac').textContent=Math.round(acc()*100)+'%';$('ms').textContent=G.mode==='I'?G.mist+'/15':'-'}
+function pop(t,c){const e=$('judge');e.textContent=t;e.style.color=c;e.animate([{transform:'scale(1.4)'},{transform:'scale(1)'}],{duration:150})}
+function bad(t){G.combo=0;G.mist++;pop(t,'#ff5577');upd();if(G.mode==='I'&&G.mist>=15&&!G.over)fin()}
+const lastHitAt={};
+function hit(ins){if(!G||G.over||G.paused||!$('game').classList.contains('on'))return;
+const hitAt=performance.now();if(hitAt-(lastHitAt[ins]||0)<45)return;lastHitAt[ins]=hitAt;
+snd(ins);const now=ac.currentTime;G.flash[ins]=now;if(now<G.notes[0].t-.3)return;let b=null;
+for(let k=G.mp;k<G.notes.length;k++){const n=G.notes[k];if(n.t-now>.22)break;if(n.i===ins&&!n.h&&Math.abs(n.t-now)<=.22){b=n;break}}
+if(!b){G.wrong++;G.score=Math.max(0,G.score-20);const c=G.combo;bad('WRONG');G.combo=c;upd();return}
+const d=Math.abs(b.t-now)*1000,j=d<=100?'P':d<=150?'G':'O';b.h=1;b.w=J[j][2];if(D.eq.fx!=='flash')G.fx.push({t:now,i:b.i});G.cnt[j]++;G.combo++;G.maxc=Math.max(G.maxc,G.combo);
+G.score+=Math.round(({P:100,G:70,O:40}[j]+(G.combo>=10?10:0))*(G.combo>=50?1.5:1));
+const fx={10:'10 COMBO · 보너스',25:'🔥 25 COMBO',50:'⚡ 50 COMBO ×1.5',100:'🏆 DRUM MASTER'}[G.combo];
+if(fx&&G.combo>=25)$('cv').animate([{boxShadow:'0 0 40px #fff'},{boxShadow:'0 0 0 #fff0'}],{duration:500});
+pop(fx||J[j][0],fx?'#fff':J[j][1]);upd()}
+let LID=0;function loop(id){if(id!==LID||!G||G.over)return;const now=ac.currentTime;
+if(!G.paused){
+for(let k=G.mp;k<G.notes.length;k++){const n=G.notes[k];if(now-n.t<=.22)break;if(!n.h){n.h=-1;G.cnt.M++;bad('MISS');if(G.over)return}G.mp=k+1}
+const c=G.chunks[G.ce];if(c&&now>c.end+.1){ev(c);G.ce++}
+if(G.mode==='I'&&now>G.t-2.6)addChunk();
+if(G.mode==='L'&&G.ce>=G.chunks.length){fin();return}}
+draw(now);requestAnimationFrame(()=>loop(id))}
+const cv=$('cv'),cx=cv.getContext('2d');
+function sz(){const r=devicePixelRatio||1;cv.width=cv.clientWidth*r;cv.height=cv.clientHeight*r}
+addEventListener('resize',sz);
+function draw(now){const r=devicePixelRatio||1,W=cv.width,H=cv.height,x0=W*.15,pps=(W-x0)/2.4,lh=(H-26*r)/5;
+cx.clearRect(0,0,W,H);cx.font=`bold ${12*r}px sans-serif`;cx.textAlign='center';
+INST.forEach((s,k)=>{const f=G.flash[s],a=f?Math.max(0,.35-(now-f)*1.5):0;cx.fillStyle=k%2?'#ffffff08':'#ffffff04';cx.fillRect(0,k*lh,W,lh);
+if(a>0){cx.globalAlpha=a;cx.fillStyle=COL[s];cx.fillRect(0,k*lh,W,lh);cx.globalAlpha=1}cx.fillStyle=COL[s];cx.fillText(s,x0*.5,k*lh+lh/2+4*r)});
+for(const g of G.grid){const px=x0+(g.t-now)*pps;if(px<x0-30*r||px>W)continue;
+if(g.l!=='&'){cx.fillStyle='#ffffff18';cx.fillRect(px-.5*r,0,r,H-22*r)}cx.fillStyle=g.d?'#666':g.l==='&'?'#7a79a8':'#d8d7ff';cx.fillText(g.l,px,H-8*r)}
+cx.fillStyle='#fff';cx.shadowColor='#fff';cx.shadowBlur=10*r;cx.fillRect(x0-1.5*r,0,3*r,H-22*r);cx.shadowBlur=0;
+for(let k=Math.max(0,G.mp-12);k<G.notes.length;k++){const n=G.notes[k],px=x0+(n.t-now)*pps;if(px>W+20)break;if(px<-20||n.h>0)continue;
+const y=INST.indexOf(n.i)*lh+lh/2;cx.globalAlpha=n.h<0?.25:1;cx.fillStyle=COL[n.i];cx.shadowColor=COL[n.i];cx.shadowBlur=10*r;cx.beginPath();cx.arc(px,y,lh*.36,0,7);cx.fill();cx.shadowBlur=0;cx.fillStyle='#000';cx.fillText(n.i,px,y+4*r);cx.globalAlpha=1}
+G.fx=G.fx.filter(e=>now-e.t<.35);for(const e of G.fx){const a=now-e.t,y=INST.indexOf(e.i)*lh+lh/2;cx.strokeStyle=COL[e.i];cx.globalAlpha=1-a/.35;cx.lineWidth=3*r;cx.beginPath();if(D.eq.fx==='ring')cx.arc(x0,y,lh*(.3+a*2),0,7);else for(let k=0;k<8;k++){const g=k*Math.PI/4,q=lh*(.3+a*1.2);cx.moveTo(x0+Math.cos(g)*q,y+Math.sin(g)*q);cx.lineTo(x0+Math.cos(g)*(q+lh*.25),y+Math.sin(g)*(q+lh*.25))}cx.stroke();cx.globalAlpha=1}}
+function pz(on){if(!G||G.over)return;G.paused=on;on?ac.suspend():ac.resume();$('pause').classList.toggle('on',!!on)}
+function restart(){if(G){const m=G.mode,l=G.li;lbPut();G.over=1;run(m,l)}}
+function quit(){lbPut();if(G)G.over=1;if(cb)cb.disconnect();ac.resume();$('pause').classList.remove('on');show('menu')}
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&G&&!G.over&&$('game').classList.contains('on')){pz(1);lbPut()}});
+function fin(){G.over=1;if(cb)cb.disconnect();const r=Math.round(acc()*100),lp=G.mode==='L';let coin=0,ok=1;
+if(lp){ok=r>=L[G.li].ps;if(ok)coin=(D.acc[G.li]>=L[G.li].ps?20:100)+(r>=95?30:0);D.acc[G.li]=Math.max(D.acc[G.li]||0,r)}
+else{coin=G.coins;if(G.score>D.best){D.best=G.score;coin+=50;G.nb=1}}
+D.bc=Math.max(D.bc,G.maxc);D.coins+=coin;save();
+$('rt').textContent=lp?(ok?'스테이지 클리어!':'조금만 더 정확하게!'):'게임 종료';
+$('rb').innerHTML=`<div class="card">점수 <b>${G.score}</b>${G.nb?' · 신기록!':''}<br>정확도 <b>${r}%</b>${lp?` (통과 기준 ${L[G.li].ps}%)`:` · 클리어한 구간 ${G.accs.length}`}<br>PERFECT ${G.cnt.P} · GREAT ${G.cnt.G} · GOOD ${G.cnt.O} · MISS ${G.cnt.M} · 잘못 누름 ${G.wrong}<br>최고 콤보 ${G.maxc}${G.maxc>=100?' · 칭호: DRUM MASTER':''}<br>🪙 +${coin}</div>`;
+$('rbtn').innerHTML=`<button class="btn" onclick="run('${G.mode}',${G.li||0})">다시 하기</button>`+(lp&&ok&&G.li<L.length-1?`<button class="btn" onclick="run('L',${G.li+1})">다음 스테이지</button>`:'')+`<button class="btn" onclick="show('menu')">메뉴로</button>`;show('result');if(!lp)lbSave()}
+INST.forEach(s=>{const b=document.querySelector(`[data-i=${s}]`);b.addEventListener('pointerdown',e=>{e.preventDefault();b.classList.add('on');hit(s)});['pointerup','pointercancel','pointerleave'].forEach(v=>b.addEventListener(v,()=>b.classList.remove('on')))});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&G&&!G.over&&$('game').classList.contains('on')){pz(G.paused?0:1);return}const s=KEY[e.key.toLowerCase()];if(s&&!e.repeat){hit(s);const b=document.querySelector(`[data-i=${s}]`);b.classList.add('on');setTimeout(()=>b.classList.remove('on'),80)}});
+/* 계정 · 리더보드 (닉네임+비밀번호 계정, 공유 db) */
+let U=null,DB=null,ADM=false,RB={},ACC=null,EDIT=null,DEL=null,LOCAL=0,TOK='',FBM=0;
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;'),nn=x=>Math.round(+x||0);
+try{ACC=JSON.parse(localStorage.getItem('drum-session')||'null')}catch(e){}
+if(ACC&&ACC.admin)ACC=null;
+const hp=async(pw,salt,it)=>{const e=new TextEncoder(),k=await crypto.subtle.importKey('raw',e.encode(pw),'PBKDF2',false,['deriveBits']),b=await crypto.subtle.deriveBits({name:'PBKDF2',salt:e.encode(salt),iterations:it,hash:'SHA-256'},k,256);return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')};
+const kid=async n=>'p'+(await hp(n.toLowerCase(),'drum-master',1000)).slice(0,24);
+function setAcc(a){ACC=a;try{a?localStorage.setItem('drum-session',JSON.stringify(a)):localStorage.removeItem('drum-session')}catch(e){}acct()}
+function logout(){if(TOK){TOK='';ADM=false}if(ACC&&!ACC.admin){Object.assign(D,DEF());delete D.owner;lsave();applyTheme()}setAcc(null);show('menu')}
+function goAuth(){$('am').textContent='';$('ae').style.display='none';show('auth')}
+function acct(){$('acct').innerHTML=ACC?`👤 ${D.eq.ttl?esc(TN(D.eq.ttl))+' ':''}<b>${esc(ACC.nick)}</b> 로그인 중${ADM?' · 관리자':''}<br><button class='sm' onclick='logout()'>로그아웃</button>`:`비로그인${ADM?' · 관리자':''}<br><span class='dim'>계정을 만들어 로그인하면 무한 연주 기록이 리더보드에 저장돼요.</span><br><button class='sm' onclick='goAuth()'>로그인 · 계정 만들기</button>`;if(LOCAL)$('acct').insertAdjacentHTML('beforeend',`<br><span class='dim'>이 기기에만 저장되는 계정이에요.</span>`);$('acct').style.cssText=ACC&&!ACC.admin?pbs(D.eq.pbg):''}
+async function auth(mk){const m=$('am'),n=$('an').value.trim(),p=$('ap').value;
+if(!DB){m.textContent='claude.ai 계정으로 이 페이지를 열어야 계정을 쓸 수 있어요.';return}
+if(!window.crypto||!crypto.subtle){m.textContent='이 브라우저에서는 계정 기능을 쓸 수 없어요.';return}
+if(n.length<2||n.length>12||p.length<4){m.textContent='닉네임은 2~12자, 비밀번호는 4자 이상이어야 해요.';return}
+if(n.toLowerCase()===ADMIN_ID){
+if(mk){m.textContent='사용할 수 없는 닉네임이에요.';return}
+if(!FBM||!FBKEY){m.textContent=FBM?'관리자 로그인이 아직 설정되지 않았어요.':'관리자 로그인은 Firebase에 연결된 페이지에서만 가능해요.';return}
+const em=$('ae').value.trim();
+if(!em){$('ae').style.display='block';m.textContent='관리자 이메일을 입력해 주세요.';return}
+m.textContent='확인 중...';
+try{const r=await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key='+FBKEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em,password:p,returnSecureToken:true})}),j=await r.json();
+if(!r.ok||!j.idToken){m.textContent='아이디 또는 비밀번호가 맞지 않아요.';return}
+TOK=j.idToken;ADM=true;setAcc({key:'admin',nick:ADMIN_ID,admin:1});$('ap').value='';$('ae').value='';show('menu')}catch(e){m.textContent='로그인에 실패했어요.'}
+return}
+m.textContent='확인 중...';
+try{const k=await kid(n),ref=DB.doc('accounts/'+k),s=await ref.get(),d=s.exists?s.data():null;
+if(mk){if(d){m.textContent='이미 사용 중인 닉네임이에요.';return}
+const salt=crypto.randomUUID?crypto.randomUUID():String(Math.random());
+await ref.set({nick:n,salt,hash:await hp(p,salt,100000),t:Date.now()})}
+else if(!d||d.hash!==await hp(p,d.salt,100000)){m.textContent='닉네임 또는 비밀번호가 맞지 않아요.';return}
+setAcc({key:k,nick:d?d.nick:n});await loadProf(k);$('ap').value='';show('menu')}
+catch(e){m.textContent='처리에 실패했어요. 공유 권한(기여자 이상)을 확인해 주세요.'}}
+function drawBoard(){if(!$('bmsg').textContent)$('bmsg').textContent=LOCAL?'claude.ai 로그인 없이 열어서, 이 기기 안에서만 기록이 저장돼요.':FBM?'모든 사용자가 함께 보는 리더보드예요. (10초마다 갱신)':'이 페이지를 연 사람들이 함께 보는 리더보드예요.';const ids=Object.keys(RB).sort((a,b)=>nn(RB[b].best)-nn(RB[a].best));
+$('bl').innerHTML=!DB?`<p class='dim'>claude.ai 계정으로 열면 리더보드를 볼 수 있어요.</p>`:!ids.length?`<p class='dim'>아직 기록이 없어요. 로그인하고 무한 연주로 첫 기록을 남겨보세요.</p>`:ids.map((id,i)=>{const r=RB[id],nm=esc(r.nick||'플레이어')+(ACC&&id===ACC.key?' (나)':''),k=esc(id);
+if(EDIT===id)return `<div class='card row'><span class='nm'>${nm}</span>점수<input id='e1' type='number' min='0' value='${nn(r.best)}'>콤보<input id='e2' type='number' min='0' value='${nn(r.bc)}'>구간<input id='e3' type='number' min='0' value='${nn(r.stg)}'><button class='sm' data-a='sv' data-id='${k}'>저장</button><button class='sm' data-a='cx'>취소</button></div>`;
+return `<div class='card row' style='${pbs(r.pbg)}'><b>${i+1}</b><span class='nm'>${r.ttl?`<small class='dim'>${esc(r.ttl)}</small> `:''}${nm}</span><span>${nn(r.best)}점</span><span class='dim'>콤보 ${nn(r.bc)} · ${nn(r.stg)}구간</span>${ADM?`<button class='sm' data-a='ed' data-id='${k}'>수정</button><button class='sm' data-a='dl' data-id='${k}'>${DEL===id?'정말 삭제?':'삭제'}</button>`:''}</div>`}).join('')}
+$('bl').onclick=async e=>{const b=e.target.closest('button');if(!b||!ADM||!DB)return;const id=b.dataset.id,a=b.dataset.a,m=$('bmsg');m.textContent='';
+try{if(a==='ed'){EDIT=id;DEL=null}else if(a==='cx')EDIT=null;
+else if(a==='sv'){await DB.doc('scores/'+id).update({best:Math.max(0,nn($('e1').value)),bc:Math.max(0,nn($('e2').value)),stg:Math.max(0,nn($('e3').value)),t:Date.now()});EDIT=null}
+else if(a==='dl'){if(DEL!==id)DEL=id;else{await DB.doc('scores/'+id).delete();DEL=null}}}catch(x){m.textContent='수정에 실패했어요. 관리자 권한이 없거나 로그인이 만료됐어요.'}
+drawBoard()};
+let LBE='';
+async function lbPut(){const g=G;if(!g||g.mode!=='I'||!ACC||ACC.admin||!DB||g.score<=0)return 0;const k=ACC.key,c=RB[k];if(c&&g.score<=nn(c.best))return 0;
+const o={nick:ACC.nick,ttl:TN(D.eq.ttl),pbg:D.eq.pbg||'none',best:g.score,bc:Math.max(g.maxc,c?nn(c.bc):0),stg:Math.max(g.accs.length,c?nn(c.stg):0),t:Date.now()};
+try{await DB.doc('scores/'+k).set(o);RB[k]=o;return 1}catch(e){LBE=String(e&&e.message||e);console.warn('리더보드 저장 실패',e);return -1}}
+async function lbSave(){$('rb').insertAdjacentHTML('beforeend',`<div id='lbmsg' class='dim'></div>`);const m=$('lbmsg');
+if(ACC&&ACC.admin){m.textContent='관리자 계정은 기록이 저장되지 않아요. 일반 계정으로 로그인해 플레이해 주세요.';return}
+if(!ACC||!DB){m.textContent='로그인하지 않아 기록이 저장되지 않았어요. 메뉴에서 로그인한 뒤 다시 플레이해 주세요.';return}
+if(G.score<=0)return;const sc=G.score,r=await lbPut(),c=RB[ACC.key];
+m.textContent=r===1?'🏆 리더보드에 기록을 등록했어요!':r===-1?`저장에 실패했어요 (${LBE}). 연결이나 Firebase 규칙을 확인해 주세요.`:c&&nn(c.best)===sc?'🏆 이 기록이 리더보드에 등록돼 있어요.':`리더보드 최고 기록(${nn(c&&c.best)}점)보다 낮아 저장하지 않았어요.`}
+/* claude.ai 로그인이 없으면 이 기기(localStorage)에 계정과 기록을 저장 */
+function localDB(){let d={};try{d=JSON.parse(localStorage.getItem('drum-local')||'{}')}catch(e){}
+const sv=()=>{try{localStorage.setItem('drum-local',JSON.stringify(d))}catch(e){}},ls=[],snap=(id,v)=>({id,exists:v!=null,data:()=>v}),ping=()=>ls.forEach(f=>f());
+return{doc(p){const[c,i]=p.split('/');return{get:async()=>snap(i,(d[c]||{})[i]),set:async v=>{(d[c]=d[c]||{})[i]=v;sv();ping()},update:async v=>{d[c]=d[c]||{};d[c][i]={...d[c][i],...v};sv();ping()},delete:async()=>{if(d[c])delete d[c][i];sv();ping()}}},
+collection(c){const q={orderBy:()=>q,limit:()=>q,onSnapshot(f){const run=()=>f({docs:Object.entries(d[c]||{}).map(([i,v])=>snap(i,v))});ls.push(run);run();return()=>{}}};return q}}}
+/* Firebase Realtime Database (REST) — claude.ai 밖(직접 호스팅)에서 열면 모든 사용자가 공유하는 리더보드 */
+const FB='https://drum-master-leaderboard-default-rtdb.asia-southeast1.firebasedatabase.app';
+/* 관리자 로그인: Firebase 콘솔 > 프로젝트 설정 > 웹 API 키를 FBKEY에 넣으세요 (공개돼도 되는 값) */
+const FBKEY='AIzaSyDQ-dXyk8l-XIaRMleoaBm595YSRRstWgo',ADMIN_ID='hpc';
+async function fbDB(){try{const c=new AbortController(),t=setTimeout(()=>c.abort(),4000),r=await fetch(FB+'/scores.json',{signal:c.signal});clearTimeout(t);if(!r.ok)return null;await r.json()}catch(e){return null}
+const call=async(m,p,v)=>{const r=await fetch(`${FB}/${p}.json${TOK?'?auth='+TOK:''}`,{method:m,body:v===undefined?undefined:JSON.stringify(v)});if(!r.ok)throw new Error(r.status);return r.json()},snap=(id,v)=>({id,exists:v!=null,data:()=>v}),ls=[],ping=()=>ls.forEach(f=>f());
+return{doc(p){const i=p.split('/')[1];return{get:async()=>snap(i,await call('GET',p)),set:async v=>{await call('PUT',p,v);ping()},update:async v=>{await call('PATCH',p,v);ping()},delete:async()=>{await call('DELETE',p);ping()}}},
+collection(c){const q={orderBy:()=>q,limit:()=>q,onSnapshot(f){const run=async()=>{try{const o=await call('GET',c)||{};f({docs:Object.entries(o).map(([i,v])=>snap(i,v))})}catch(e){}};ls.push(run);run();setInterval(run,10000);return()=>{}}};return q}}}
+/* 계정 프로필(코인·구매·진행도)을 계정에 저장 */
+const PF=['coins','own','eq','acc','bc','best'],DEF=()=>({coins:0,best:0,bc:0,acc:{},own:{},eq:{pbg:'none',theme:'neon',fx:'flash',ttl:''}});
+let pt=0;
+function pushProf(){try{if(!ACC||ACC.admin||!DB)return;const k=ACC.key,o={t:Date.now()};PF.forEach(f=>o[f]=D[f]);clearTimeout(pt);pt=setTimeout(()=>{try{DB.doc('profiles/'+k).set(o).catch(()=>{})}catch(e){}},1200)}catch(e){}}
+async function loadProf(k){try{const s=await DB.doc('profiles/'+k).get();
+if(s.exists){const p=s.data();Object.assign(D,{coins:nn(p.coins),bc:nn(p.bc),best:nn(p.best),own:Object.assign({},p.own),acc:Object.assign({},p.acc),eq:Object.assign(DEF().eq,p.eq),owner:k})}
+else{if(D.owner&&D.owner!==k)Object.assign(D,DEF());D.owner=k;pushProf()}
+if(fixProg())pushProf();lsave();applyTheme()}catch(e){}}
+function sub(){DB.collection('scores').orderBy('best','desc').limit(200).onSnapshot(s=>{RB={};s.docs.forEach(d=>RB[d.id]=d.data());if($('board').classList.contains('on'))drawBoard()},()=>{if(!LOCAL){DB=localDB();LOCAL=1;sub();acct()}})}
+(async()=>{const cl=window.claude,f=await fbDB();
+if(f){DB=f;FBM=1}else{
+if(cl&&cl.use){try{U=await cl.use('user');DB=await cl.use('db')}catch(e){}}
+if(U)try{ADM=await U.canEdit()}catch(e){}
+if(!DB){DB=localDB();LOCAL=1}}
+acct();try{sub()}catch(e){}if(ACC&&!ACC.admin)loadProf(ACC.key).then(()=>{if($('menu').classList.contains('on'))show('menu')})})();
+/* 상점: 코인으로 겉모습·칭호만 해금 (판정에는 영향 없음) */
+const SETS={base:{kf:160,kd:.3,sf:1500,st:190,hf:7500,cd:.9}};
+const PB={ocean:'linear-gradient(120deg,#0b3d91,#13b5b1)',flame:'linear-gradient(120deg,#b3122b,#ff8a3d)',candy:'linear-gradient(120deg,#c2308f,#7a4dff)',gold:'linear-gradient(120deg,#8a6a1a,#ffd86a,#8a6a1a)',cosmic:'radial-gradient(circle at 20% 30%,#fff 0 1px,transparent 2px),radial-gradient(circle at 70% 60%,#fff 0 1px,transparent 2px),linear-gradient(120deg,#1a0f4d,#5b2a9e)'};
+const ITEMS=[['theme','neon','네온 블루',0],['theme','aurora','오로라',500],['theme','synth','신스웨이브',800],['theme','galaxy','은하수',1000],['pbg','none','기본',0],['pbg','ocean','바다',400],['pbg','flame','불꽃',600],['pbg','candy','캔디',600],['pbg','gold','골드',1200],['pbg','cosmic','코스믹',1500],['fx','flash','기본 반짝임',0],['fx','ring','링 이펙트',500],['fx','spark','스파크 이펙트',800],['ttl','','칭호 없음',0],['ttl','tb','비트 수집가',250],['ttl','tj','리듬 장인',700],['ttl','tl','전설의 드러머',1800],['ttl','tm','🏆 DRUM MASTER',0]];
+const pbs=id=>typeof PB[id]==='string'?`background:${PB[id]};text-shadow:0 1px 2px #0008`:'';
+const TN=id=>(ITEMS.find(x=>x[0]==='ttl'&&x[1]===id)||[0,0,''])[2],owned=i=>i[3]===0?(i[1]!=='tm'||D.bc>=100):!!D.own[i[0]+':'+i[1]];
+function applyTheme(id){document.documentElement.dataset.th=id||D.eq.theme||'neon'}
+function setTtl(){if(ACC&&RB[ACC.key]&&DB)try{DB.doc('scores/'+ACC.key).update({ttl:TN(D.eq.ttl),pbg:D.eq.pbg||'none'}).catch(()=>{})}catch(e){}}
+function drawShop(){$('sc2').textContent=D.coins;$('sl').innerHTML=[['theme','배경 테마'],['pbg','프로필 배경'],['fx','타격 시각 효과'],['ttl','칭호']].map(([c,h])=>`<h3>${h}</h3>`+ITEMS.filter(i=>i[0]===c).map(i=>{const d=`data-c='${c}' data-id='${i[1]}'`;return `<div class='card row' style='${c==='pbg'?pbs(i[1]):''}'><span class='nm'>${i[2]}</span>${c==='theme'?`<button class='sm' data-a='pvt' ${d}>미리보기</button>`:''}${D.eq[c]===i[1]?`<span class='dim'>장착 중</span>`:owned(i)?`<button class='sm' data-a='eq' ${d}>장착</button>`:i[3]===0?`<span class='dim'>100콤보 달성 시 해금</span>`:`<button class='sm' data-a='buy' ${d}>${i[3]} 🪙 구매</button>`}</div>`}).join('')).join('')}
+$('sl').onclick=e=>{const b=e.target.closest('button');if(!b)return;const c=b.dataset.c,id=b.dataset.id,a=b.dataset.a,it=ITEMS.find(x=>x[0]===c&&x[1]===id),m=$('shm');m.textContent='';
+if(a==='pvt'){applyTheme(id);setTimeout(()=>applyTheme(),3000);m.textContent='3초 동안 미리 보여드려요.';return}
+if(a==='buy'){if(D.coins<it[3]){m.textContent='코인이 부족해요.';return}D.coins-=it[3];D.own[c+':'+id]=1;m.textContent=it[2]+' 구매 완료! 바로 장착했어요.'}
+D.eq[c]=id;if(c==='theme')applyTheme();if(c==='ttl'||c==='pbg')setTtl();save();drawShop()};
+applyTheme();$('vol').value=D.vol;$('vol').oninput=e=>{D.vol=+e.target.value;if(master)master.gain.value=D.vol;lsave()};
+show('menu');
+</script></body></html>
